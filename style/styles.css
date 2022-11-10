@@ -1,0 +1,18 @@
+/*
+This is the styles file for HTML elements.
+*/
+
+body{
+    margin: 0;
+    background-color: darkgray;
+    overflow: hidden;
+    text-align: center;
+}
+
+#Canvas1{
+    background-color: lightgray;
+}
+
+
+
+
