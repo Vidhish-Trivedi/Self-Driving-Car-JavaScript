@@ -7,7 +7,7 @@ class Sensor{
         this.car = car;
         this.rayCount = 5;
         this.rayRange = 150;
-        this.raySpread = Math.PI/4;  // Total angular range.
+        this.raySpread = Math.PI/2;  // Total angular range.
         
         this.rays = [];
 
@@ -38,6 +38,7 @@ class Sensor{
 
         for(let i = 0; i < roadBorders.length; i++){
             // Using util function to get multiple/all intersections between two line segments.
+            // check intersection of a given ray with all borders.
             const touch = getIntersection(ray[0], ray[1], roadBorders[i][0], roadBorders[i][1]);
 
             if(touch){
@@ -65,6 +66,7 @@ class Sensor{
         this.readings = [];
 
         // For detecting obstacle distance.
+        // Update for all rays.
         for(let i = 0; i < this.rays.length; i++){
             this.readings.push(this.#getReading(this.rays[i], roadBorders));
         }
@@ -90,9 +92,9 @@ class Sensor{
 
             ctx.beginPath();
             ctx.lineWidth = 2;
-            ctx.strokeStyle = "Red";
-            ctx.moveTo(this.rays[i][0].x, this.rays[i][0].y);
-            ctx.lineTo(this.rays[i][1].x, this.rays[i][1].y);
+            ctx.strokeStyle = "black";
+            ctx.moveTo(this.rays[i][1].x, this.rays[i][1].y);
+            ctx.lineTo(end.x, end.y);
             // ctx.lineTo(end.x, end.y);
             ctx.stroke();
         }

@@ -16,17 +16,69 @@ class Car{
 
         this.angle = 0;
 
+        // For collision detection.
+        this.damaged = false;
+
         // Using the Controls class from controls.js
         this.controls = new Controls();
 
         // Instantiate sensors.
         this.sensor = new Sensor(this);
+
+        this.polygon = null;
     }
 
     // Update method.
     update(roadBorders){
-        this.#move();
+        if(!this.damaged){
+            this.#move();
+            this.polygon = this.#createPolygon();
+            this.damaged = this.#checkDamage(roadBorders);
+        }    
         this.sensor.update(roadBorders);
+    }
+
+    // Helper function to check for damage/collision.
+    #checkDamage(roadBorders){
+        for(let i = 0; i < roadBorders.length; i++){
+            // Using util function, used to check intersection of two polygons.
+            if(polyIntersect(this.polygon, roadBorders[i])){
+                return(true);
+            }
+        }
+        return(false);
+    }
+
+    // Helper method for collisions.
+    #createPolygon(){
+        const points = [];  // array of corners of car.
+
+        // Radius is taken as half of diagonal of rectangle in this case.
+        const radius = Math.hypot(this.width, this.height)/2;
+        
+        // alpha = arctan(width/height);
+        const alpha = Math.atan(this.width/this.height);
+        // top-left
+        points.push({
+            x: this.x - Math.sin(this.angle - alpha)*radius, 
+            y: this.y - Math.cos(this.angle - alpha)*radius
+        });
+        // top-right
+        points.push({
+            x: this.x - Math.sin(this.angle + alpha)*radius, 
+            y: this.y - Math.cos(this.angle + alpha)*radius
+        });
+        // bottom-left
+        points.push({
+            x: this.x - Math.sin(Math.PI + this.angle - alpha)*radius, 
+            y: this.y - Math.cos(Math.PI + this.angle - alpha)*radius
+        });
+        // bottom-right
+        points.push({
+            x: this.x - Math.sin(Math.PI + this.angle + alpha)*radius, 
+            y: this.y - Math.cos(Math.PI + this.angle + alpha)*radius
+        });
+        return(points);
     }
 
     // Move method, using keyboard input.
@@ -79,16 +131,20 @@ class Car{
 
     // Draw method, to draw onto canvas.
     draw(ctx){
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(-this.angle);
+        if(this.damaged){
+            ctx.fillStyle = "gray";
+        }
+        else{
+            ctx.fillStyle = "black";
+        }
 
-        // Draw the car.
+        // Draw car using polygon.
         ctx.beginPath();
-        ctx.rect(-this.width/2, -this.height/2, this.width, this.height);
+        ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
+        for(let i = 1; i < this.polygon.length; i++){
+            ctx.lineTo(this.polygon[i].x, this.polygon[i].y)
+        }
         ctx.fill();
-
-        ctx.restore();
 
         this.sensor.draw(ctx);
     }
