@@ -18,11 +18,15 @@ class Car{
 
         // Using the Controls class from controls.js
         this.controls = new Controls();
+
+        // Instantiate sensors.
+        this.sensor = new Sensor(this);
     }
 
     // Update method.
-    update(){
+    update(roadBorders){
         this.#move();
+        this.sensor.update(roadBorders);
     }
 
     // Move method, using keyboard input.
@@ -59,7 +63,7 @@ class Car{
 
         // Rotate only when car is moving.
         if(this.speed != 0){
-            const flip = this.speed > 0 ? 1 : -1;
+            const flip = this.speed > 0 ? 1 : -1;  // Managing rotation while moving forward or backward.
             if(this.controls.left){
                 this.angle += 0.03*flip;
             }
@@ -79,10 +83,13 @@ class Car{
         ctx.translate(this.x, this.y);
         ctx.rotate(-this.angle);
 
+        // Draw the car.
         ctx.beginPath();
         ctx.rect(-this.width/2, -this.height/2, this.width, this.height);
         ctx.fill();
 
         ctx.restore();
+
+        this.sensor.draw(ctx);
     }
 }

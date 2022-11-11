@@ -22,7 +22,7 @@ animate();
 function animate(){
     canvas.height = window.innerHeight;
 
-    car.update();
+    car.update(road.borders);
 
     ctx.save();  // For effect of camera above car.
     ctx.translate(0, canvas.height*0.6 - car.y);  // For effect of camera above car.
