@@ -33,7 +33,7 @@ class Sensor{
     }
 
     // Private method for detecting obstacle distance.
-    #getReading(ray, roadBorders){
+    #getReading(ray, roadBorders, traffic){
         let touches = [];
 
         for(let i = 0; i < roadBorders.length; i++){
@@ -43,6 +43,17 @@ class Sensor{
 
             if(touch){
                 touches.push(touch);
+            }
+        }
+
+        for(let i = 0; i < traffic.length; i++){
+            const temp_poly = traffic[i].polygon;
+            for(let j = 0; j < temp_poly.length; j++){
+                const val = getIntersection(ray[0], ray[1], temp_poly[j], temp_poly[(j + 1)%temp_poly.length]);
+
+                if(val){
+                    touches.push(val);
+                }
             }
         }
 
@@ -60,15 +71,15 @@ class Sensor{
         }
     }
 
-    // Road borders need to be passed from road to car to sensor.
-    update(roadBorders){
+    // Road borders and traffic need to be passed here.
+    update(roadBorders, traffic){
         this.#castRays();
         this.readings = [];
 
-        // For detecting obstacle distance.
+        // For detecting distance to road borders or traffic cars.
         // Update for all rays.
         for(let i = 0; i < this.rays.length; i++){
-            this.readings.push(this.#getReading(this.rays[i], roadBorders));
+            this.readings.push(this.#getReading(this.rays[i], roadBorders, traffic));
         }
     }
 
@@ -81,21 +92,20 @@ class Sensor{
                 end = this.readings[i];
             }
 
-
+            // Yellow part.
             ctx.beginPath();
             ctx.lineWidth = 2;
             ctx.strokeStyle = "Yellow";
             ctx.moveTo(this.rays[i][0].x, this.rays[i][0].y);
-            // ctx.lineTo(this.rays[i][1].x, this.rays[i][1].y);
             ctx.lineTo(end.x, end.y);
             ctx.stroke();
 
+            // Black part.
             ctx.beginPath();
             ctx.lineWidth = 2;
             ctx.strokeStyle = "black";
             ctx.moveTo(this.rays[i][1].x, this.rays[i][1].y);
             ctx.lineTo(end.x, end.y);
-            // ctx.lineTo(end.x, end.y);
             ctx.stroke();
         }
     }

@@ -3,14 +3,14 @@ This is the class file for Car.
 */
 
 class Car{
-    constructor(x, y, width, height){
+    constructor(x, y, width, height, controlType, maxSpeed = 3){
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
 
         this.speed = 0;
-        this.maxspeed = 3;
+        this.maxspeed = maxSpeed;
         this.acc = 0.2;
         this.friction = 0.05;
 
@@ -20,29 +20,48 @@ class Car{
         this.damaged = false;
 
         // Using the Controls class from controls.js
-        this.controls = new Controls();
+        this.controls = new Controls(controlType);
 
-        // Instantiate sensors.
-        this.sensor = new Sensor(this);
+        // Instantiate sensors only for main car and not traffic.
+        if(controlType == "KEYS"){
+            this.sensor = new Sensor(this);
+        }
+        else{
+            this.sensor = null;
+        }
 
-        this.polygon = null;
+        this.polygon = null;  // for non-main cars.
     }
 
     // Update method.
-    update(roadBorders){
+    update(roadBorders, traffic){
+        // Moving and checking for collisions.
         if(!this.damaged){
             this.#move();
             this.polygon = this.#createPolygon();
-            this.damaged = this.#checkDamage(roadBorders);
-        }    
-        this.sensor.update(roadBorders);
+            this.damaged = this.#checkDamage(roadBorders, traffic);
+        }
+
+        // Update sensor to detect road borders and traffic.
+        if(this.sensor){
+            this.sensor.update(roadBorders, traffic);
+        }
     }
 
-    // Helper function to check for damage/collision.
-    #checkDamage(roadBorders){
+    // Helper function to check for collision of main car.
+    #checkDamage(roadBorders, traffic){
+        // Collision with road borders.
         for(let i = 0; i < roadBorders.length; i++){
             // Using util function, used to check intersection of two polygons.
             if(polyIntersect(this.polygon, roadBorders[i])){
+                return(true);
+            }
+        }
+
+        // Collision with traffic.
+        for(let i = 0; i < traffic.length; i++){
+            // Using util function, used to check intersection of two polygons.
+            if(polyIntersect(this.polygon, traffic[i].polygon)){
                 return(true);
             }
         }
@@ -130,12 +149,12 @@ class Car{
     }
 
     // Draw method, to draw onto canvas.
-    draw(ctx){
+    draw(ctx, color){
         if(this.damaged){
             ctx.fillStyle = "gray";
         }
         else{
-            ctx.fillStyle = "black";
+            ctx.fillStyle = color;
         }
 
         // Draw car using polygon.
@@ -146,6 +165,8 @@ class Car{
         }
         ctx.fill();
 
-        this.sensor.draw(ctx);
+        if(this.sensor){
+            this.sensor.draw(ctx);
+        }
     }
 }

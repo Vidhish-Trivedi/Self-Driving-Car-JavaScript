@@ -3,13 +3,20 @@ This is the class file for Controls.
 */
 
 class Controls{
-    constructor(){
+    constructor(type){
         this.forward = false;
         this.left = false;
         this.right = false;
         this.reverse = false;
         
-        this.#addKeyboardListners();
+        // Main car, to be controlled by user.
+        if(type == "KEYS"){
+            this.#addKeyboardListners();
+        }
+        // Traffic cars simply move forward.
+        else if(type == "TRAFFIC"){
+            this.forward = true;
+        }
     }
 
     // Private Method.
