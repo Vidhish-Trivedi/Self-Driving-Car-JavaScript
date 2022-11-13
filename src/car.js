@@ -22,11 +22,14 @@ class Car{
         // Using the Controls class from controls.js
         this.controls = new Controls(controlType);
 
+        this.useMind = (controlType == "NN");  // boolean.
+
         // Instantiate sensors only for main car and not traffic.
-        if(controlType == "KEYS"){
+        if(controlType != "TRAFFIC"){
             this.sensor = new Sensor(this);
+            this.mind = new NeuralNetwork([this.sensor.rayCount, 6, 4]);  // 4 ==> L, R, U, D (output layer).  6 ==> hidden layer.
         }
-        else{
+        else if(controlType == "TRAFFIC"){
             this.sensor = null;
         }
 
@@ -45,6 +48,19 @@ class Car{
         // Update sensor to detect road borders and traffic.
         if(this.sensor){
             this.sensor.update(roadBorders, traffic);
+
+            const obstacleDists = this.sensor.readings.map(s => s == null ? 0 : 1 - s.obstacleDist);  // Values closer to 1 ==> obstacle is closer.
+            
+            const outputs = NeuralNetwork.feedForward(obstacleDists, this.mind);
+
+            // console.log(outputs);
+
+            if(this.useMind){
+                this.controls.forward = outputs[0];
+                this.controls.left = outputs[1];
+                this.controls.right = outputs[2];
+                this.controls.reverse = outputs[3];
+            }
         }
     }
 

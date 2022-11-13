@@ -2,18 +2,25 @@
 main.js
 */
 
-const canvas = document.getElementById("Canvas1");
-canvas.width = 200;
+// For car.
+const canvas1 = document.getElementById("Canvas1");
+canvas1.width = 200;
 
-// Context for canvas.
-const ctx = canvas.getContext("2d");
+const ctx1 = canvas1.getContext("2d");
+
+// For network.
+const canvas2 = document.getElementById("Canvas2");
+canvas2.width = 300;
+
+const ctx2 = canvas2.getContext("2d");
+
 
 // Instantiate a Road object.
-const road = new Road(canvas.width/2, canvas.width*0.9);
+const road = new Road(canvas1.width/2, canvas1.width*0.9);
 
 // Instantiate a Car object.
 // const car = new Car(100, 100, 30, 50);
-const car = new Car(road.getLaneCenter(1), 100, 30, 50, "KEYS");
+const car = new Car(road.getLaneCenter(1), 100, 30, 50, "NN");
 
 // Add traffic to road.
 const traffic = [new Car(road.getLaneCenter(1), -100, 30, 50, "TRAFFIC", 2)];
@@ -28,23 +35,24 @@ function animate(){
         traffic[i].update(road.borders, []);  // Pass empty array instead of traffic for now. // May need to update later for traffic cars interacting with other traffic cars, ==> TRAFFIC - SELF
     }
 
-    canvas.height = window.innerHeight;
+    canvas1.height = window.innerHeight;
+    canvas2.height = window.innerHeight;
 
     car.update(road.borders, traffic);
 
-    ctx.save();  // For effect of camera above car.
-    ctx.translate(0, canvas.height*0.6 - car.y);  // For effect of camera above car.
+    ctx1.save();  // For effect of camera above car.
+    ctx1.translate(0, canvas1.height*0.6 - car.y);  // For effect of camera above car.
 
     // Drawing traffic cars.
-    road.draw(ctx);
+    road.draw(ctx1);
     for(let i = 0; i < traffic.length; i++){
-        traffic[i].draw(ctx, "red");
+        traffic[i].draw(ctx1, "red");
     }
 
     // Drawing main car.
-    car.draw(ctx, "green");
+    car.draw(ctx1, "green");
     
-    ctx.restore();  // For effect of camera above car.
+    ctx1.restore();  // For effect of camera above car.
 
     requestAnimationFrame(animate);
 }

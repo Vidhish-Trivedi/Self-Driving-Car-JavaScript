@@ -5,7 +5,7 @@ This is the class file for Sensor.
 class Sensor{
     constructor(car){
         this.car = car;
-        this.rayCount = 5;
+        this.rayCount = 10;
         this.rayRange = 150;
         this.raySpread = Math.PI/2;  // Total angular range.
         

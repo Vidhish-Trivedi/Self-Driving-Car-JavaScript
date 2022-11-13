@@ -7,8 +7,24 @@ NOTE: The words neuron and node are used interchangeably.
 class NeuralNetwork{
     // neuronCounts is an array storing the number of nodes in each layer.
     constructor(neuronCounts){
-
+        this.levels = []
+        for(let i = 0; i < neuronCounts.length - 1; i++){
+            this.levels.push(new Level(neuronCounts[i], neuronCounts[i + 1]));
+        }
     }
+
+    static feedForward(givenInputs, network){
+        // Output of 1st layer.
+        let outputs = Level.feedForward(givenInputs, network.levels[0]);
+
+        // Looping through all layers to get output.
+        for(let i = 1; i < network.levels.length; i++){
+            outputs = Level.feedForward(outputs, network.levels[i]);
+        }
+
+        return(outputs);
+    }
+
 }
 
 
@@ -16,10 +32,10 @@ class NeuralNetwork{
 class Level{
     // input neurons and output neurons.
     constructor(inputCount, outputCount){
-        this.inputs = new Array[inputCount];  // From car sensors.
-        this.outputs = new Array[outputCount];
+        this.inputs = new Array(inputCount);  // From car sensors.
+        this.outputs = new Array(outputCount);
 
-        this.biases = new Array[outputCount];  // Each output neuron has a bias, a value above which it will fire.
+        this.biases = new Array(outputCount);  // Each output neuron has a bias, a value above which it will fire.
         this.weights = [];
 
         for(let i = 0; i < inputCount; i++){
@@ -69,7 +85,7 @@ class Level{
                 level.outputs[i] = 0;
             }
         }
-
-        return(outputs);
+        
+        return(level.outputs);
     }
 }
